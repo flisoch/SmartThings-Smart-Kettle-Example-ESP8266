@@ -7,6 +7,7 @@
 #include "device_control.h"
 #include "iot_os_util.h"
 #include "caps_switch.h"
+#include "caps_temperatureMeasurement.h"
 
 
 // onboarding_config_start is null-terminated string
@@ -23,6 +24,11 @@ static iot_stat_lv_t g_iot_stat_lv;
 IOT_CTX* ctx = NULL;
 
 static caps_switch_data_t *cap_switch_data;
+static caps_temperature_data_t *cap_temperature_data;
+
+int monitor_enable = false;
+int monitor_period_ms = 10000;
+
 
 static void iot_noti_cb(iot_noti_data_t *noti_data, void *noti_usr_data)
 {
@@ -61,12 +67,16 @@ static void capability_init()
 {
     cap_switch_data = caps_switch_initialize(ctx, "main", NULL, NULL);
     if (cap_switch_data) {
-        const char *switch_init_value = caps_helper_switch.attr_switch.value_off;
-
         cap_switch_data->cmd_on_usr_cb = cap_switch_cmd_cb;
         cap_switch_data->cmd_off_usr_cb = cap_switch_cmd_cb;
 
-        cap_switch_data->set_switch_value(cap_switch_data, switch_init_value);
+        cap_switch_data->set_switch_value(cap_switch_data, caps_helper_switch.attr_switch.value_off);
+    }
+
+    cap_temperature_data = caps_temperatureMeasurement_initialize(ctx, "main", NULL, NULL);
+    if (cap_temperature_data) {
+        cap_temperature_data->set_temperature_unit(cap_temperature_data, caps_helper_temperatureMeasurement.attr_temperature.unit_C);
+        cap_temperature_data->set_temperature_value(cap_temperature_data, 0);
     }
 }
 
@@ -102,13 +112,33 @@ static void connection_start(void)
     if (err) {
         printf("fail to start connection. err:%d\n", err);
     }
+    monitor_enable = true;
 }
 
 static void app_main_task(void *arg)
-{
+{   
+    iot_os_timer timer = NULL;
+    int iot_err;
+    iot_err = iot_os_timer_init(&timer);
+	if (iot_err) {
+		printf("000 fail to init timer: %d\n", iot_err);
+	}
+
+    iot_os_timer_count_ms(timer, monitor_period_ms);
+    int temperature_value = 0;
     for (;;) {
+        if (monitor_enable && iot_os_timer_isexpired(timer)) {
+            iot_os_timer_count_ms(timer, monitor_period_ms);
+
+            /* emulate sensor value for example */
+            temperature_value = (temperature_value + 5) % 100;
+
+            cap_temperature_data->set_temperature_value(cap_temperature_data, temperature_value);
+            cap_temperature_data->attr_temperature_send(cap_temperature_data);
+        }
         iot_os_delay(10);
     }
+    iot_os_timer_destroy(&timer);
 }
 
 void app_main(void) 
@@ -130,14 +160,15 @@ void app_main(void)
         printf("fail to create the iot_context\n");
     }
 
-    // caps_switch.h 
+    // caps_*.h 
     capability_init();
 
     // device.h
     iot_gpio_init();
 
+    connection_start();
+
+    printf("AAAAAAAAAAAAAAA 0000\n");
     // device input handling
     iot_os_thread_create(app_main_task, "app_main_task", 2048, NULL, 10, NULL);
-
-    connection_start();
 }
