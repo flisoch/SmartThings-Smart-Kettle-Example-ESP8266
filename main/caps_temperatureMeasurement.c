@@ -76,7 +76,7 @@ caps_temperature_data_t *caps_temperatureMeasurement_initialize(IOT_CTX *ctx, co
     caps_temperature_data_t *caps_data = NULL;
     caps_data = malloc(sizeof(caps_temperature_data_t));
     if (!caps_data) {
-        printf("fail to malloc for caps_dustSensor_data\n");
+        printf("fail to malloc for caps_temperature_data_t\n");
         return NULL;
     }
 

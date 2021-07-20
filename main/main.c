@@ -8,6 +8,8 @@
 #include "iot_os_util.h"
 #include "caps_switch.h"
 #include "caps_temperatureMeasurement.h"
+#include "caps_temperatureAlarm.h"
+#include "caps_thermostatHeatingSetpoint.h"
 
 
 // onboarding_config_start is null-terminated string
@@ -25,6 +27,8 @@ IOT_CTX* ctx = NULL;
 
 static caps_switch_data_t *cap_switch_data;
 static caps_temperature_data_t *cap_temperature_data;
+static caps_temperatureAlarm_data_t *cap_temperatureAlarm_data;
+static caps_thermostatHeatingSetpoint_data_t *cap_heatingSetpoint_data;
 
 int monitor_enable = false;
 int monitor_period_ms = 10000;
@@ -77,6 +81,15 @@ static void capability_init()
     if (cap_temperature_data) {
         cap_temperature_data->set_temperature_unit(cap_temperature_data, caps_helper_temperatureMeasurement.attr_temperature.unit_C);
         cap_temperature_data->set_temperature_value(cap_temperature_data, 0);
+    }
+
+    cap_temperatureAlarm_data = caps_temperatureAlarm_initialize(ctx, "main", NULL, NULL);
+
+    cap_heatingSetpoint_data = caps_thermostatHeatingSetpoint_initialize(ctx, "main", NULL, NULL);
+    if (cap_heatingSetpoint_data) {
+        cap_heatingSetpoint_data->set_min(cap_heatingSetpoint_data, 0);
+        cap_heatingSetpoint_data->set_max(cap_heatingSetpoint_data, 100);
+        cap_heatingSetpoint_data->set_unit(cap_heatingSetpoint_data, caps_helper_thermostatHeatingSetpoint.attr_heatingSetpoint.unit_C);
     }
 }
 
