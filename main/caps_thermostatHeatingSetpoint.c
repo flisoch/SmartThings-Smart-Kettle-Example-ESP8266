@@ -104,7 +104,7 @@ static void caps_attr_setpointValue_send(caps_thermostatHeatingSetpoint_data_t *
 static void caps_cmd_setHeatingSetpoint_cb(IOT_CAP_HANDLE *handle, iot_cap_cmd_data_t *cmd_data, void *usr_data)
 {
     caps_thermostatHeatingSetpoint_data_t *caps_data = (caps_thermostatHeatingSetpoint_data_t *)usr_data;
-    double value = 0.0;
+    double value = cmd_data->cmd_data[0].integer;
 
     printf("called [%s] func with num_args:%u\n", __func__, cmd_data->num_args);
 

@@ -74,7 +74,7 @@ static void capability_init()
         cap_switch_data->cmd_on_usr_cb = cap_switch_cmd_cb;
         cap_switch_data->cmd_off_usr_cb = cap_switch_cmd_cb;
 
-        cap_switch_data->set_switch_value(cap_switch_data, caps_helper_switch.attr_switch.value_off);
+        cap_switch_data->set_switch_value(cap_switch_data, caps_helper_switch.attr_switch.value_on);
     }
 
     cap_temperature_data = caps_temperatureMeasurement_initialize(ctx, "main", NULL, NULL);
@@ -134,7 +134,7 @@ static void app_main_task(void *arg)
     int iot_err;
     iot_err = iot_os_timer_init(&timer);
 	if (iot_err) {
-		printf("000 fail to init timer: %d\n", iot_err);
+		printf("fail to init timer: %d\n", iot_err);
 	}
 
     iot_os_timer_count_ms(timer, monitor_period_ms);
@@ -181,7 +181,6 @@ void app_main(void)
 
     connection_start();
 
-    printf("AAAAAAAAAAAAAAA 0000\n");
     // device input handling
     iot_os_thread_create(app_main_task, "app_main_task", 2048, NULL, 10, NULL);
 }
