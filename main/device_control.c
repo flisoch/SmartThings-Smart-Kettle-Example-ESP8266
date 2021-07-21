@@ -71,3 +71,18 @@ double temperature_event(double temperature_value) {
     /* emulate sensor value for example */
     return temperature_value + 5;
 }
+
+void change_buzzer_state(int buzzer_state) 
+{	
+	if (buzzer_state == BUZZER_OFF) {
+        printf("SILENCE!\n");
+    } else {
+        printf("BEEP!\n");
+    }
+}
+void beep() {
+	/* emulate buzzer */
+	change_buzzer_state(BUZZER_ON);
+	IOT_DELAY(BUZZER_SOUND_DURATION);
+	change_buzzer_state(BUZZER_OFF);
+}

@@ -109,7 +109,6 @@ static void caps_cmd_setHeatingSetpoint_cb(IOT_CAP_HANDLE *handle, iot_cap_cmd_d
 
     caps_set_value(caps_data, value);
     if (caps_data && caps_data->cmd_setHeatingSetpoint_usr_cb) {
-        printf("MAIN CALLBACK\n");
         caps_data->cmd_setHeatingSetpoint_usr_cb(caps_data);
     }
     caps_attr_setpointValue_send(caps_data);

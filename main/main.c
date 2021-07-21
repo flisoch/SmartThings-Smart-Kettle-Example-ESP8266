@@ -29,7 +29,8 @@ static caps_temperature_data_t *cap_temperature_data;
 static caps_thermostatHeatingSetpoint_data_t *cap_heatingSetpoint_data;
 
 int thermostat_enable = false;
-double heating_setpoint = -1;
+int buzzer_enable = false;
+double heating_setpoint = 0;
 
 
 static void iot_noti_cb(iot_noti_data_t *noti_data, void *noti_usr_data)
@@ -66,14 +67,10 @@ static void cap_switch_cmd_cb(struct caps_switch_data *caps_data)
 }
 
 static void cap_thermostat_cmd_cb(struct caps_thermostatHeatingSetpoint_data *caps_data)
-{
-    printf("is termostat enable: %d\n", thermostat_enable);
+{ 
     thermostat_enable = true;
-    printf("is termostat enable after enabling: %d\n", thermostat_enable);
     heating_setpoint = caps_data->get_value(caps_data);
-    printf("heating setpoint: %f\n", heating_setpoint);
     int led_state = get_switch_state();
-    printf("led state: %d\n", led_state);
     change_led_state(heating_setpoint, led_state);
 }
 
@@ -154,9 +151,14 @@ static void app_main_task(void *arg)
             cap_temperature_data->set_temperature_value(cap_temperature_data, temperature_value);
             cap_temperature_data->attr_temperature_send(cap_temperature_data);
         }
-        if (temperature_value > heating_setpoint) {
+        if (thermostat_enable && temperature_value >= heating_setpoint) {
             thermostat_enable = false;
             temperature_value = 0;
+            buzzer_enable = true;
+        }
+        if (buzzer_enable) {
+            beep();
+            buzzer_enable = false;
         }
         iot_os_delay(10);
     }
