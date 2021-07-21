@@ -12,6 +12,15 @@ void change_switch_state(int switch_state)
     }
 }
 
+void change_thermostat_state(int *thermostat_state)
+{
+    if (thermostat_state == THERMOSTAT_OFF) {
+		*thermostat_state = THERMOSTAT_ON;
+    } else {
+		*thermostat_state = THERMOSTAT_OFF;
+    }
+}
+
 void iot_gpio_init(void)
 {   
     // esp sdk specific 
@@ -44,12 +53,9 @@ void change_led_state(double heating_setpoint, int led_state)
 		change_switch_state(!led_state);
 		iot_os_delay(300);
 		change_switch_state(led_state);
+		iot_os_delay(50);
 	}
 	else  {
-		change_switch_state(!led_state);
-		iot_os_delay(800);
-		change_switch_state(led_state);
-		iot_os_delay(800);
 		change_switch_state(!led_state);
 		iot_os_delay(800);
 		change_switch_state(led_state);

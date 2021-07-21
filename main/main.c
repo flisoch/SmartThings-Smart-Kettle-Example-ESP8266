@@ -64,11 +64,16 @@ static void cap_switch_cmd_cb(struct caps_switch_data *caps_data)
 {
     int switch_state = get_switch_state();
     change_switch_state(switch_state);
+    if (thermostat_enable == true) {
+        thermostat_enable = false;
+    }
+    else {
+        thermostat_enable = true;
+    }
 }
 
 static void cap_thermostat_cmd_cb(struct caps_thermostatHeatingSetpoint_data *caps_data)
 { 
-    thermostat_enable = true;
     heating_setpoint = caps_data->get_value(caps_data);
     int led_state = get_switch_state();
     change_led_state(heating_setpoint, led_state);
@@ -81,7 +86,7 @@ static void capability_init()
         cap_switch_data->cmd_on_usr_cb = cap_switch_cmd_cb;
         cap_switch_data->cmd_off_usr_cb = cap_switch_cmd_cb;
 
-        cap_switch_data->set_switch_value(cap_switch_data, caps_helper_switch.attr_switch.value_on);
+        cap_switch_data->set_switch_value(cap_switch_data, caps_helper_switch.attr_switch.value_off);
     }
 
     cap_temperature_data = caps_temperatureMeasurement_initialize(ctx, "main", NULL, NULL);
@@ -159,6 +164,9 @@ static void app_main_task(void *arg)
         if (buzzer_enable) {
             beep();
             buzzer_enable = false;
+            cap_switch_data->set_switch_value(cap_switch_data, caps_helper_switch.attr_switch.value_off);
+            cap_switch_data->attr_switch_send(cap_switch_data);
+            change_switch_state(get_switch_state());
         }
         iot_os_delay(10);
     }

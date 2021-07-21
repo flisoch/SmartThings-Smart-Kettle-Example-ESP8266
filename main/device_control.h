@@ -11,6 +11,11 @@ enum switch_onoff_state {
     SWITCH_ON = 1,
 };
 
+enum thermostat_onoff_state {
+    THERMOSTAT_OFF = 0,
+    THERMOSTAT_ON = 1,
+};
+
 enum buzzer_onoff_state {
     BUZZER_OFF = 0,
     BUZZER_ON = 1,
@@ -22,6 +27,7 @@ enum main_led_gpio_state {
 };
 
 void change_switch_state(int switch_state);
+void change_thermostat_state(int *thermostat_state);
 // void led_blink(int switch_state, int delay, int count);
 void iot_gpio_init(void);
 void change_led_state(double heating_setpoint, int led_state);
