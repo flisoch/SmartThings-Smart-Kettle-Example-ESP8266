@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 #include "caps_thermostatHeatingSetpoint.h"
-// #include "st_dev.h"
 
 static const char *caps_get_unit(caps_thermostatHeatingSetpoint_data_t *caps_data)
 {

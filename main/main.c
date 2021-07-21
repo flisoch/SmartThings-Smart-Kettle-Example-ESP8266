@@ -8,7 +8,6 @@
 #include "iot_os_util.h"
 #include "caps_switch.h"
 #include "caps_temperatureMeasurement.h"
-#include "caps_temperatureAlarm.h"
 #include "caps_thermostatHeatingSetpoint.h"
 
 
@@ -27,7 +26,6 @@ IOT_CTX* ctx = NULL;
 
 static caps_switch_data_t *cap_switch_data;
 static caps_temperature_data_t *cap_temperature_data;
-static caps_temperatureAlarm_data_t *cap_temperatureAlarm_data;
 static caps_thermostatHeatingSetpoint_data_t *cap_heatingSetpoint_data;
 
 int monitor_enable = false;
@@ -82,8 +80,6 @@ static void capability_init()
         cap_temperature_data->set_temperature_unit(cap_temperature_data, caps_helper_temperatureMeasurement.attr_temperature.unit_C);
         cap_temperature_data->set_temperature_value(cap_temperature_data, 0);
     }
-
-    cap_temperatureAlarm_data = caps_temperatureAlarm_initialize(ctx, "main", NULL, NULL);
 
     cap_heatingSetpoint_data = caps_thermostatHeatingSetpoint_initialize(ctx, "main", NULL, NULL);
     if (cap_heatingSetpoint_data) {
