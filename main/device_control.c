@@ -1,6 +1,7 @@
 #include "device_control.h"
-
 #include "driver/gpio.h"
+
+#include "iot_os_util.h"
 
 void change_switch_state(int switch_state)
 {
@@ -30,4 +31,43 @@ void iot_gpio_init(void)
 
 	gpio_set_level(GPIO_OUTPUT_MAINLED, MAINLED_GPIO_ON);
 	gpio_set_level(GPIO_OUTPUT_MAINLED_0, 0);
-}    
+}
+
+void change_led_state(double heating_setpoint, int led_state)
+{
+	// any signalling of chosen temperature/heating mode
+	if (heating_setpoint > 30) {
+		change_switch_state(!led_state);
+		iot_os_delay(300);
+		change_switch_state(led_state);
+		iot_os_delay(300);
+		change_switch_state(!led_state);
+		iot_os_delay(300);
+		change_switch_state(led_state);
+	}
+	else  {
+		change_switch_state(!led_state);
+		iot_os_delay(800);
+		change_switch_state(led_state);
+		iot_os_delay(800);
+		change_switch_state(!led_state);
+		iot_os_delay(800);
+		change_switch_state(led_state);
+	}
+}
+
+int get_temperature_event(iot_os_timer timer)
+{
+    if (iot_os_timer_isexpired(timer)) {
+	    iot_os_timer_count_ms(timer, TEMPERATURE_EVENT_MS_RATE);
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+double temperature_event(double temperature_value) {
+    /* emulate sensor value for example */
+    return temperature_value + 5;
+}

@@ -9,11 +9,11 @@ typedef struct caps_temperature_data {
     void *usr_data;
     void *cmd_data;
 
-    int temperature_value;
+    double temperature_value;
     char *temperature_unit;
 
-    int (*get_temperature_value)(struct caps_temperature_data *caps_data);
-    void (*set_temperature_value)(struct caps_temperature_data *caps_data, int value);
+    double (*get_temperature_value)(struct caps_temperature_data *caps_data);
+    void (*set_temperature_value)(struct caps_temperature_data *caps_data, double value);
     const char *(*get_temperature_unit)(struct caps_temperature_data *caps_data);
     void (*set_temperature_unit)(struct caps_temperature_data *caps_data, const char *unit);
     void (*attr_temperature_send)(struct caps_temperature_data *caps_data);

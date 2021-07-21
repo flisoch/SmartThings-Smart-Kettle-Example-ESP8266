@@ -28,8 +28,8 @@ static caps_switch_data_t *cap_switch_data;
 static caps_temperature_data_t *cap_temperature_data;
 static caps_thermostatHeatingSetpoint_data_t *cap_heatingSetpoint_data;
 
-int monitor_enable = false;
-int monitor_period_ms = 10000;
+int thermostat_enable = false;
+double heating_setpoint = -1;
 
 
 static void iot_noti_cb(iot_noti_data_t *noti_data, void *noti_usr_data)
@@ -65,6 +65,18 @@ static void cap_switch_cmd_cb(struct caps_switch_data *caps_data)
     change_switch_state(switch_state);
 }
 
+static void cap_thermostat_cmd_cb(struct caps_thermostatHeatingSetpoint_data *caps_data)
+{
+    printf("is termostat enable: %d\n", thermostat_enable);
+    thermostat_enable = true;
+    printf("is termostat enable after enabling: %d\n", thermostat_enable);
+    heating_setpoint = caps_data->get_value(caps_data);
+    printf("heating setpoint: %f\n", heating_setpoint);
+    int led_state = get_switch_state();
+    printf("led state: %d\n", led_state);
+    change_led_state(heating_setpoint, led_state);
+}
+
 static void capability_init()
 {
     cap_switch_data = caps_switch_initialize(ctx, "main", NULL, NULL);
@@ -83,8 +95,7 @@ static void capability_init()
 
     cap_heatingSetpoint_data = caps_thermostatHeatingSetpoint_initialize(ctx, "main", NULL, NULL);
     if (cap_heatingSetpoint_data) {
-        cap_heatingSetpoint_data->set_min(cap_heatingSetpoint_data, 0);
-        cap_heatingSetpoint_data->set_max(cap_heatingSetpoint_data, 100);
+        cap_heatingSetpoint_data->cmd_setHeatingSetpoint_usr_cb = cap_thermostat_cmd_cb;
         cap_heatingSetpoint_data->set_unit(cap_heatingSetpoint_data, caps_helper_thermostatHeatingSetpoint.attr_heatingSetpoint.unit_C);
     }
 }
@@ -121,8 +132,8 @@ static void connection_start(void)
     if (err) {
         printf("fail to start connection. err:%d\n", err);
     }
-    monitor_enable = true;
 }
+
 
 static void app_main_task(void *arg)
 {   
@@ -132,18 +143,20 @@ static void app_main_task(void *arg)
 	if (iot_err) {
 		printf("fail to init timer: %d\n", iot_err);
 	}
+    iot_os_timer_count_ms(timer, TEMPERATURE_EVENT_MS_RATE);
 
-    iot_os_timer_count_ms(timer, monitor_period_ms);
-    int temperature_value = 0;
+    double temperature_value = 0;
+
     for (;;) {
-        if (monitor_enable && iot_os_timer_isexpired(timer)) {
-            iot_os_timer_count_ms(timer, monitor_period_ms);
-
-            /* emulate sensor value for example */
-            temperature_value = (temperature_value + 5) % 100;
-
+        // todo: add physical buttons handling of thermostat heating setpoint
+        if (thermostat_enable && get_temperature_event(timer)) {
+            temperature_value = temperature_event(temperature_value);
             cap_temperature_data->set_temperature_value(cap_temperature_data, temperature_value);
             cap_temperature_data->attr_temperature_send(cap_temperature_data);
+        }
+        if (temperature_value > heating_setpoint) {
+            thermostat_enable = false;
+            temperature_value = 0;
         }
         iot_os_delay(10);
     }

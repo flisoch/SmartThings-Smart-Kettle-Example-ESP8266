@@ -5,16 +5,16 @@
 #include "st_dev.h"
 #include "caps_temperatureMeasurement.h"
 
-static int caps_temperature_get_temperature_value(caps_temperature_data_t *caps_data)
+static double caps_temperature_get_temperature_value(caps_temperature_data_t *caps_data)
 {
     if (!caps_data) {
         printf("caps_data is NULL\n");
-        return NULL;
+        return -1;
     }
     return caps_data->temperature_value;
 }
 
-static void caps_temperature_set_temperature_value(caps_temperature_data_t *caps_data, int value)
+static void caps_temperature_set_temperature_value(caps_temperature_data_t *caps_data, double value)
 {
     if (!caps_data) {
         printf("caps_data is NULL\n");
