@@ -2,6 +2,7 @@
 #include "driver/gpio.h"
 
 #include "iot_os_util.h"
+#include <math.h>
 
 void change_switch_state(int switch_state)
 {
@@ -38,28 +39,38 @@ void iot_gpio_init(void)
 
 	gpio_install_isr_service(0);
 
-	gpio_set_level(GPIO_OUTPUT_MAINLED, MAINLED_GPIO_ON);
-	gpio_set_level(GPIO_OUTPUT_MAINLED_0, 0);
+	gpio_set_level(GPIO_OUTPUT_MAINLED, MAINLED_GPIO_OFF);
+	gpio_set_level(GPIO_OUTPUT_MAINLED_0, MAINLED_GPIO_ON);
+	//todo: включить ещё и rgb светодиод зелёным 
+
 }
 
 void change_led_state(double heating_setpoint, int led_state)
 {
 	// any signalling of chosen temperature/heating mode
-	if (heating_setpoint > 30) {
-		for (int i = 0; i < 2; i++) {
-			change_switch_state(1 - led_state);
-			iot_os_delay(300);
-			change_switch_state(led_state);
-			iot_os_delay(300);
-    	}
+	int blinks = 0;
+	if (heating_setpoint <= 10) {
+		blinks = 1;
 	}
-	else  {
-		for (int i = 0; i < 2; i++) {
-			change_switch_state(1 - led_state);
-			iot_os_delay(800);
-			change_switch_state(led_state);
-			iot_os_delay(800);
-    	}
+	else if (heating_setpoint <= 20)
+	{
+		blinks = 2;
+	}
+	else if (heating_setpoint <= 50) {
+		blinks = 3;
+	}
+	else if (heating_setpoint <= 100) {
+		blinks = 4;
+	}
+	else {
+		printf("heating setpoint is more than 100 or not set!\nPlease, set correct number");
+	}
+	for (int i = 0; i < blinks; i++) {
+		// todo: мигать rgb зелёным светодиодом
+		change_switch_state(1 - led_state);
+		iot_os_delay(300);
+		change_switch_state(led_state);
+		iot_os_delay(300);
 	}
 }
 
@@ -92,4 +103,34 @@ void beep() {
 	change_buzzer_state(BUZZER_ON);
 	IOT_DELAY(BUZZER_SOUND_DURATION);
 	change_buzzer_state(BUZZER_OFF);
+}
+
+void change_rgb_led_boiling(double heating_setpoint, double current_temperature) 
+{
+	// Green 0, 255, 0    --   0%
+	// Yellow 255, 255, 0 --  50%
+	// Red 255, 0, 0      -- 100%
+
+	double progress_f = current_temperature/heating_setpoint * 100;
+	int progress = (int)round(progress_f);
+	printf("boiling progress: %d %% ", progress);
+
+	int red = RGB_LED_R;
+	int green = RGB_LED_G;
+	int blue = RGB_LED_B;
+
+	if (progress < 50) {
+		red += 5 * progress;
+	}
+	else if (progress >= 50) {
+		red = 255;
+		green -= 5 * (progress - 50);
+	}
+	printf("Boiling RGB: %d, %d, %d\n", red, green, blue);
+	change_rgb_led_state(red, green, blue);
+	IOT_DELAY(RGB_BOILING_ADJUSTMENT_DURATION);
+}
+
+void change_rgb_led_state(int red, int green, int blue) {
+
 }

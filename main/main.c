@@ -148,11 +148,13 @@ static void app_main_task(void *arg)
         // todo: add physical buttons handling of thermostat heating setpoint
         if (thermostat_enable && get_temperature_event(timer)) {
             temperature_value = temperature_event(temperature_value);
+            change_rgb_led_boiling(heating_setpoint, temperature_value);
             cap_temperature_data->set_temperature_value(cap_temperature_data, temperature_value);
             cap_temperature_data->attr_temperature_send(cap_temperature_data);
         }
         if (thermostat_enable && temperature_value >= heating_setpoint) {
             thermostat_enable = false;
+            change_rgb_led_boiling(heating_setpoint, heating_setpoint);
             temperature_value = 0;
             buzzer_enable = true;
         }
