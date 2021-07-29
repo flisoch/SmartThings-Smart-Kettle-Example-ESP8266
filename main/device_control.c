@@ -46,19 +46,20 @@ void change_led_state(double heating_setpoint, int led_state)
 {
 	// any signalling of chosen temperature/heating mode
 	if (heating_setpoint > 30) {
-		change_switch_state(!led_state);
-		iot_os_delay(300);
-		change_switch_state(led_state);
-		iot_os_delay(300);
-		change_switch_state(!led_state);
-		iot_os_delay(300);
-		change_switch_state(led_state);
-		iot_os_delay(50);
+		for (int i = 0; i < 2; i++) {
+			change_switch_state(1 - led_state);
+			iot_os_delay(300);
+			change_switch_state(led_state);
+			iot_os_delay(300);
+    	}
 	}
 	else  {
-		change_switch_state(!led_state);
-		iot_os_delay(800);
-		change_switch_state(led_state);
+		for (int i = 0; i < 2; i++) {
+			change_switch_state(1 - led_state);
+			iot_os_delay(800);
+			change_switch_state(led_state);
+			iot_os_delay(800);
+    	}
 	}
 }
 
