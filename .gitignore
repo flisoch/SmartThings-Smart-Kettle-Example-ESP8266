@@ -7,3 +7,4 @@ debug_sdkconfig
 main/device_info.json
 main/onboarding_config.json
 main/Kconfig*
+custom-capability/smartthings

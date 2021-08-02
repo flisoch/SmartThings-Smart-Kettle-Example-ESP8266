@@ -1,0 +1,68 @@
+{
+    "id": "titledouble20168.boiler",
+    "version": 1,
+    "status": "proposed",
+    "name": "boiler",
+    "attributes": {
+        "temperature": {
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 100
+                    },
+                    "unit": {
+                        "type": "string",
+                        "enum": [
+                            "celcius"
+                        ],
+                        "default": "celcius"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "value"
+                ]
+            },
+            "setter": "setTemperature",
+            "enumCommands": [
+                {
+                    "command": "setBoilingTemperature",
+                    "value": "0"
+                }
+            ]
+        }
+    },
+    "commands": {
+        "setBoilingTemperature": {
+            "name": "setBoilingTemperature",
+            "arguments": [
+                {
+                    "name": "value",
+                    "optional": false,
+                    "schema": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 100
+                    }
+                }
+            ]
+        },
+        "setTemperature": {
+            "name": "setTemperature",
+            "arguments": [
+                {
+                    "name": "value",
+                    "optional": false,
+                    "schema": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 100
+                    }
+                }
+            ]
+        }
+    }
+}
