@@ -4,6 +4,7 @@
 2. Copy config files of some default capability
 
     `$./smartthings capabilities thermostatHeatingSetpoint 1 -j -o capabilityCopy.json`
+    
     `$./smartthings capabilities:presentation thermostatHeatingSetpoint 1 -j -o capabilityPresentationCopy.json`
 
 3. Change capability Id and other fields you want to customize
