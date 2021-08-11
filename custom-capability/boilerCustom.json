@@ -1,14 +1,13 @@
 {
-    "id": "titledouble20168.boiler",
-    "version": 1,
-    "status": "proposed",
-    "name": "boiler",
+    "name": "Boiling Setpoint 3",
     "attributes": {
         "temperature": {
             "schema": {
+                "title": "Temperature",
                 "type": "object",
                 "properties": {
                     "value": {
+                        "title": "TemperatureValue",
                         "type": "number",
                         "minimum": 0,
                         "maximum": 100
@@ -16,9 +15,10 @@
                     "unit": {
                         "type": "string",
                         "enum": [
-                            "celcius"
+                            "F",
+                            "C"
                         ],
-                        "default": "celcius"
+                        "default": "C"
                     }
                 },
                 "additionalProperties": false,
@@ -27,36 +27,18 @@
                 ]
             },
             "setter": "setTemperature",
-            "enumCommands": [
-                {
-                    "command": "setBoilingTemperature",
-                    "value": "0"
-                }
-            ]
+            "enumCommands": []
         }
     },
     "commands": {
-        "setBoilingTemperature": {
-            "name": "setBoilingTemperature",
-            "arguments": [
-                {
-                    "name": "value",
-                    "optional": false,
-                    "schema": {
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 100
-                    }
-                }
-            ]
-        },
         "setTemperature": {
-            "name": "setTemperature",
+            "name":"setTemperature",
             "arguments": [
                 {
                     "name": "value",
                     "optional": false,
                     "schema": {
+                        "title": "TemperatureValue",
                         "type": "number",
                         "minimum": 0,
                         "maximum": 100
@@ -64,5 +46,6 @@
                 }
             ]
         }
+        
     }
 }

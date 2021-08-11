@@ -104,19 +104,6 @@ static void iot_status_cb(iot_status_t status,
     g_iot_stat_lv = stat_lv;
 
     printf("status: %d, stat: %d\n", g_iot_status, g_iot_stat_lv);
-
-    switch(status) {
-        case IOT_STATUS_NEED_INTERACT:
-            // noti_led_mode = LED_ANIMATION_MODE_FAST;
-            break;
-        case IOT_STATUS_IDLE:
-        case IOT_STATUS_CONNECTING:
-            // noti_led_mode = LED_ANIMATION_MODE_IDLE;
-            // change_switch_state(get_switch_state());
-            break;
-        default:
-            break;
-    }
 }
 
 static void connection_start(void)
@@ -145,22 +132,29 @@ static void app_main_task(void *arg)
     double temperature_value = 0;
 
     for (;;) {
-        // todo: add physical buttons handling of thermostat heating setpoint
+        if (get_button_event()) {
+            change_switch_state(get_switch_state());
+            thermostat_enable = true;
+        }
         if (thermostat_enable && get_temperature_event(timer)) {
             temperature_value = temperature_event(temperature_value);
-            change_rgb_led_boiling(heating_setpoint, temperature_value);
+            change_rgb_state(GPIO_OUTPUT_RGBLED_B, LED_GPIO_OFF);
+            change_rgb_state(GPIO_OUTPUT_RGBLED_R, LED_GPIO_ON);
             cap_temperature_data->set_temperature_value(cap_temperature_data, temperature_value);
             cap_temperature_data->attr_temperature_send(cap_temperature_data);
         }
         if (thermostat_enable && temperature_value >= heating_setpoint) {
             thermostat_enable = false;
-            change_rgb_led_boiling(heating_setpoint, heating_setpoint);
+            change_rgb_state(GPIO_OUTPUT_RGBLED_R, LED_GPIO_OFF);
+            change_rgb_state(GPIO_OUTPUT_RGBLED_G, LED_GPIO_ON);
             temperature_value = 0;
             buzzer_enable = true;
         }
         if (buzzer_enable) {
             beep();
             buzzer_enable = false;
+            change_rgb_state(GPIO_OUTPUT_RGBLED_G, LED_GPIO_OFF);
+            change_rgb_state(GPIO_OUTPUT_RGBLED_B, LED_GPIO_ON);
             cap_switch_data->set_switch_value(cap_switch_data, caps_helper_switch.attr_switch.value_off);
             cap_switch_data->attr_switch_send(cap_switch_data);
             change_switch_state(get_switch_state());
@@ -176,9 +170,7 @@ void app_main(void)
     unsigned int onboarding_config_len = onboarding_config_end - onboarding_config_start;
     unsigned char *device_info = (unsigned char *) device_info_start;
     unsigned int device_info_len = device_info_end - device_info_start;
-
     int iot_err;
-
     // st_dev.h
     ctx = st_conn_init(onboarding_config, onboarding_config_len, device_info, device_info_len);
     if (ctx != NULL) {
