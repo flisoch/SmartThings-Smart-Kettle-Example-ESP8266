@@ -2,20 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// #include "st_dev.h"
 #include "caps_switch.h"
-
-static int caps_switch_attr_switch_str2idx(const char *value)
-{
-    int index;
-
-    for (index = 0; index < CAP_ENUM_SWITCH_SWITCH_VALUE_MAX; index++) {
-        if (!strcmp(value, caps_helper_switch.attr_switch.values[index])) {
-            return index;
-        }
-    }
-    return -1;
-}
 
 static const char *caps_switch_get_switch_value(caps_switch_data_t *caps_data)
 {
@@ -111,14 +98,12 @@ caps_switch_data_t *caps_switch_initialize(IOT_CTX *ctx, const char *component, 
 
     memset(caps_data, 0, sizeof(caps_switch_data_t));
 
-    // don't really need this to communicate with cloud
+    // cb from main
     caps_data->init_usr_cb = init_usr_cb;
     caps_data->usr_data = usr_data;
 
     caps_data->get_switch_value = caps_switch_get_switch_value;
     caps_data->set_switch_value = caps_switch_set_switch_value;
-    // not sure where it is used, until I find it out, it is commented
-    // caps_data->attr_switch_str2idx = caps_switch_attr_switch_str2idx;
     caps_data->attr_switch_send = caps_switch_attr_switch_send;
     if(ctx) {
         caps_data->handle = st_cap_handle_init(ctx, component, caps_helper_switch.id, caps_switch_init_cb, caps_data);

@@ -7,6 +7,8 @@
 #include "device_control.h"
 #include "iot_os_util.h"
 #include "caps_switch.h"
+#include "caps_temperatureMeasurement.h"
+#include "caps_thermostatHeatingSetpoint.h"
 
 
 // onboarding_config_start is null-terminated string
@@ -23,6 +25,13 @@ static iot_stat_lv_t g_iot_stat_lv;
 IOT_CTX* ctx = NULL;
 
 static caps_switch_data_t *cap_switch_data;
+static caps_temperature_data_t *cap_temperature_data;
+static caps_thermostatHeatingSetpoint_data_t *cap_heatingSetpoint_data;
+
+int thermostat_enable = false;
+int buzzer_enable = false;
+double heating_setpoint = 0;
+
 
 static void iot_noti_cb(iot_noti_data_t *noti_data, void *noti_usr_data)
 {
@@ -55,18 +64,36 @@ static void cap_switch_cmd_cb(struct caps_switch_data *caps_data)
 {
     int switch_state = get_switch_state();
     change_switch_state(switch_state);
+    thermostat_enable = !thermostat_enable;
+}
+
+static void cap_thermostat_cmd_cb(struct caps_thermostatHeatingSetpoint_data *caps_data)
+{ 
+    heating_setpoint = caps_data->get_value(caps_data);
+    int led_state = get_switch_state();
+    change_led_state(heating_setpoint, led_state);
 }
 
 static void capability_init()
 {
     cap_switch_data = caps_switch_initialize(ctx, "main", NULL, NULL);
     if (cap_switch_data) {
-        const char *switch_init_value = caps_helper_switch.attr_switch.value_off;
-
         cap_switch_data->cmd_on_usr_cb = cap_switch_cmd_cb;
         cap_switch_data->cmd_off_usr_cb = cap_switch_cmd_cb;
 
-        cap_switch_data->set_switch_value(cap_switch_data, switch_init_value);
+        cap_switch_data->set_switch_value(cap_switch_data, caps_helper_switch.attr_switch.value_off);
+    }
+
+    cap_temperature_data = caps_temperatureMeasurement_initialize(ctx, "main", NULL, NULL);
+    if (cap_temperature_data) {
+        cap_temperature_data->set_temperature_unit(cap_temperature_data, caps_helper_temperatureMeasurement.attr_temperature.unit_C);
+        cap_temperature_data->set_temperature_value(cap_temperature_data, 0);
+    }
+
+    cap_heatingSetpoint_data = caps_thermostatHeatingSetpoint_initialize(ctx, "main", NULL, NULL);
+    if (cap_heatingSetpoint_data) {
+        cap_heatingSetpoint_data->cmd_setHeatingSetpoint_usr_cb = cap_thermostat_cmd_cb;
+        cap_heatingSetpoint_data->set_unit(cap_heatingSetpoint_data, caps_helper_thermostatHeatingSetpoint.attr_heatingSetpoint.unit_C);
     }
 }
 
@@ -77,19 +104,6 @@ static void iot_status_cb(iot_status_t status,
     g_iot_stat_lv = stat_lv;
 
     printf("status: %d, stat: %d\n", g_iot_status, g_iot_stat_lv);
-
-    switch(status) {
-        case IOT_STATUS_NEED_INTERACT:
-            // noti_led_mode = LED_ANIMATION_MODE_FAST;
-            break;
-        case IOT_STATUS_IDLE:
-        case IOT_STATUS_CONNECTING:
-            // noti_led_mode = LED_ANIMATION_MODE_IDLE;
-            // change_switch_state(get_switch_state());
-            break;
-        default:
-            break;
-    }
 }
 
 static void connection_start(void)
@@ -104,11 +118,50 @@ static void connection_start(void)
     }
 }
 
+
 static void app_main_task(void *arg)
-{
+{   
+    iot_os_timer timer = NULL;
+    int iot_err;
+    iot_err = iot_os_timer_init(&timer);
+	if (iot_err) {
+		printf("fail to init timer: %d\n", iot_err);
+	}
+    iot_os_timer_count_ms(timer, TEMPERATURE_EVENT_MS_RATE);
+
+    double temperature_value = 0;
+
     for (;;) {
+        if (get_button_event()) {
+            change_switch_state(get_switch_state());
+            thermostat_enable = true;
+        }
+        if (thermostat_enable && get_temperature_event(timer)) {
+            temperature_value = temperature_event(temperature_value);
+            change_rgb_state(GPIO_OUTPUT_RGBLED_B, LED_GPIO_OFF);
+            change_rgb_state(GPIO_OUTPUT_RGBLED_R, LED_GPIO_ON);
+            cap_temperature_data->set_temperature_value(cap_temperature_data, temperature_value);
+            cap_temperature_data->attr_temperature_send(cap_temperature_data);
+        }
+        if (thermostat_enable && temperature_value >= heating_setpoint) {
+            thermostat_enable = false;
+            change_rgb_state(GPIO_OUTPUT_RGBLED_R, LED_GPIO_OFF);
+            change_rgb_state(GPIO_OUTPUT_RGBLED_G, LED_GPIO_ON);
+            temperature_value = 0;
+            buzzer_enable = true;
+        }
+        if (buzzer_enable) {
+            beep();
+            buzzer_enable = false;
+            change_rgb_state(GPIO_OUTPUT_RGBLED_G, LED_GPIO_OFF);
+            change_rgb_state(GPIO_OUTPUT_RGBLED_B, LED_GPIO_ON);
+            cap_switch_data->set_switch_value(cap_switch_data, caps_helper_switch.attr_switch.value_off);
+            cap_switch_data->attr_switch_send(cap_switch_data);
+            change_switch_state(get_switch_state());
+        }
         iot_os_delay(10);
     }
+    iot_os_timer_destroy(&timer);
 }
 
 void app_main(void) 
@@ -117,9 +170,7 @@ void app_main(void)
     unsigned int onboarding_config_len = onboarding_config_end - onboarding_config_start;
     unsigned char *device_info = (unsigned char *) device_info_start;
     unsigned int device_info_len = device_info_end - device_info_start;
-
     int iot_err;
-
     // st_dev.h
     ctx = st_conn_init(onboarding_config, onboarding_config_len, device_info, device_info_len);
     if (ctx != NULL) {
@@ -130,14 +181,14 @@ void app_main(void)
         printf("fail to create the iot_context\n");
     }
 
-    // caps_switch.h 
+    // caps_*.h 
     capability_init();
 
     // device.h
     iot_gpio_init();
 
+    connection_start();
+
     // device input handling
     iot_os_thread_create(app_main_task, "app_main_task", 2048, NULL, 10, NULL);
-
-    connection_start();
 }
