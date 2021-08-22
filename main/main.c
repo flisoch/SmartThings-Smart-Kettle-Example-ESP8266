@@ -133,7 +133,8 @@ static void app_main_task(void *arg)
 
     for (;;) {
         if (get_button_event()) {
-            change_switch_state(get_switch_state());
+            cap_switch_data->set_switch_value(cap_switch_data, caps_helper_switch.attr_switch.value_off);
+            cap_switch_data->attr_switch_send(cap_switch_data);
             thermostat_enable = true;
         }
         if (thermostat_enable && get_temperature_event(timer)) {
@@ -157,7 +158,6 @@ static void app_main_task(void *arg)
             change_rgb_state(GPIO_OUTPUT_RGBLED_B, LED_GPIO_ON);
             cap_switch_data->set_switch_value(cap_switch_data, caps_helper_switch.attr_switch.value_off);
             cap_switch_data->attr_switch_send(cap_switch_data);
-            change_switch_state(get_switch_state());
         }
         iot_os_delay(10);
     }

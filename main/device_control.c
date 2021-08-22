@@ -90,14 +90,14 @@ void change_rgb_state(int pin, int value)
 	}
 }
 
-void change_led_state(double heating_setpoint, int led_state)
+void blink_led(double heating_setpoint, int led_state)
 {
 	// any signalling of chosen temperature/heating mode
 	int blinks = 0;
 	if (heating_setpoint <= 10) {
 		blinks = 1;
 	}
-	else if (heating_setpoint <= 20)
+	else if (heating_setpoint <= 30)
 	{
 		blinks = 2;
 	}
@@ -111,11 +111,10 @@ void change_led_state(double heating_setpoint, int led_state)
 		printf("heating setpoint is more than 100 or not set!\nPlease, set correct number");
 	}
 	for (int i = 0; i < blinks; i++) {
-		// todo: мигать rgb зелёным светодиодом
 		change_switch_state(1 - led_state);
-		iot_os_delay(300);
+		iot_os_delay(BLINK_DURATION);
 		change_switch_state(led_state);
-		iot_os_delay(300);
+		iot_os_delay(BLINK_DURATION);
 	}
 }
 
@@ -139,10 +138,8 @@ void change_buzzer_state(int buzzer_state)
 {	
 	if (buzzer_state == BUZZER_OFF) {
 		gpio_set_level(GPIO_OUTPUT_BUZZER, BUZZER_OFF);
-        printf("SILENCE!\n");
     } else {
 		gpio_set_level(GPIO_OUTPUT_BUZZER, BUZZER_ON);
-        printf("BEEP!\n");
     }
 }
 void beep() {
