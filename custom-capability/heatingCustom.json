@@ -1,5 +1,5 @@
 {
-    "name": "Boiling Setpoint 3",
+    "name": "Heating Setpoint",
     "attributes": {
         "temperature": {
             "schema": {
