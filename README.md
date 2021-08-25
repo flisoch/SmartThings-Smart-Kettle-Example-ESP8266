@@ -3,7 +3,7 @@
 ## Что это
 В этом репозитории содержится код прошивки esp8266 устройства "Умный чайник" с интерграцией в SmartThings. Создание этого проекта описано в [туториале](https://habr.com/ru/company/samsung/blog/573514/) на Хабре. Этот же пример, но с использованием esp32 и датчика температуры ds18B20 расположен в [этом репозитории](https://github.com/flisoch/SmartThings-Smart-Kettle-Example-esp32).
 ## Как начать
-Если вы ещё не работали с SmartThings, рекоменду пройти [этот туториал](https://habr.com/ru/company/samsung/blog/489834/) на Хабре, в котором описаны шаги создания типового проекта в целом, и подготовка окружения, сборка и прошивка в частности. Та же эта информация доступна в [Getting Started](https://github.com/SmartThingsCommunity/st-device-sdk-c-ref/blob/master/doc/getting_started.md) справочного репозитория [st-device-sdk-ref-c](https://github.com/SmartThingsCommunity/st-device-sdk-c-ref) с примерами под разные платы.
+Если вы ещё не работали с SmartThings, рекомендую пройти [этот туториал](https://habr.com/ru/company/samsung/blog/489834/) на Хабре, в котором описаны шаги создания типового проекта в целом, и подготовка окружения, сборка и прошивка в частности. Та же эта информация доступна в [Getting Started](https://github.com/SmartThingsCommunity/st-device-sdk-c-ref/blob/master/doc/getting_started.md) справочного репозитория [st-device-sdk-ref-c](https://github.com/SmartThingsCommunity/st-device-sdk-c-ref) с примерами под разные платы.
 
 ### Сборка и прошивка примера
 Если вы уже запускали примеры и у вас подготовлено окружение:
