@@ -1,60 +1,35 @@
-# SmartThings SDK for Direct Connected Devices for C - Switch Example
+# Проект "Умный чайник"
 
-## Introduction
+## Что это
+В этом репозитории содержится код прошивки esp8266 устройства "Умный чайник" с интерграцией в SmartThings. Создание этого проекта описано в [туториале](https://habr.com/ru/company/samsung/blog/573514/) на Хабре. Этот же пример, но с использованием esp32 и датчика температуры ds18B20 расположен в [этом репозитории](https://github.com/flisoch/SmartThings-Smart-Kettle-Example-esp32).
+## Как начать
+Если вы ещё не работали с SmartThings, рекоменду пройти [этот туториал](https://habr.com/ru/company/samsung/blog/489834/) на Хабре, в котором описаны шаги создания типового проекта в целом, и подготовка окружения и прошивка в частности. Та же эта информация доступна в [Getting Started](https://github.com/SmartThingsCommunity/st-device-sdk-c-ref/blob/master/doc/getting_started.md) справочного репозитория [st-device-sdk-ref-c](https://github.com/SmartThingsCommunity/st-device-sdk-c-ref) с примерами под разные платы.
 
-SmartThings direct-connected device is Wi-Fi enabled device that uses the SmartThings cloud as its primary cloud infrastructure. And this device will use the MQTT protocol for communication.
+### Сборка и прошивка примера
+Если вы уже запускали примеры и у вас подготовлено окружение:
 
-## Getting started
+1. Перейдите в директорию `apps/esp8266` c примерами под эту платформу.
+    ```
+    st-device-sdk-c-ref
+    ├── apps
+    │   ├── ...
+    │   ├── esp8266
+    │   └── ...
+    ├── ...
+    ```
+2. Находять в директории `apps/esp8266`, склонируйте этот репозиторий
+ 
+   `$git clone https://github.com/flisoch/SmartThings-Smart-Kettle-Example-ESP8266.git`
 
-For information on detailed workflow, please refer to the [Getting Started](../../../doc/getting_started.md)
+3. Добавьте свои файлы `device_info.json` и `onboarding_config.json` в директорию `smart_kettle_example/main`
 
-## Components and Capabilities
+4. (Опционально). Создайте кастомное Heating Setpoint Capability по [алгоритму](https://github.com/flisoch/SmartThings-Smart-Kettle-Example-ESP8266/blob/master/custom-capability/README.md)
 
-SmartThings Device is defined using components and capabilities. Capabilities define the features of the device, and capabilities are grouped into components.
-Components and Capabilities are contained in device profile. You can create a device profile in Developer Workspace and associate it with an integration.
-
-This example assumes the following component and capabilities are used. :  
-
-`main` component  
-- `healthCheck` capability  
-- `switch` capability  
-
-(`healthCheck` capability is automatically added by Developer Workspace. It doesn't need handler at device side)
-
-## SmartThings SDK for Direct Connected Devices - Config
-If you want to use specific SmartThings Device SDK build options, you can directly modify the build configuration file. For this example, SmartThings Device SDK config is saved in 'sdkconfig' file. If you want to change this, please execute the following :
-```sh
-# python build.py {app_path} {option}
-$ cd ~/st-device-sdk-c-ref/
-$ python build.py app/esp8266/switch_example menuconfig
-```
-
-## Test device schematics
-This example uses ESP32 GPIO like below.  
-Please refer below pictures for __ESP8266-WEMOS D1 mini__ and __ESP8266-DEVKITC__.  
-GPIOs for __ESP8266-WEMOS D1 mini__ will be used by default. You can switch it for __ESP8266-DEVKITC__ by uncommenting below `define` at [device_control.h](main/device_control.h)
-```c
-//#define CONFIG_TARGET_ESP8266_DEVKITC_V1
-```
-
-> Note: If your device's schematics doesn't match with belows.
-> Please modify GPIO defines for your device at [device_control.h](main/device_control.h)
->
-> ```c
-> #define GPIO_INPUT_BUTTON 5
-> 
-> #define GPIO_OUTPUT_MAINLED 16
-> #define GPIO_OUTPUT_MAINLED_0 13 /* use as ground */
- >```
-
-### ESP8266-WEMOS D1 mini  
-| ESP8266 WEMOS D1 mini                                                     |
-|-------------------------------------------------------------------|
-|![ESP8266_WEMOS_D1_MINI](../../../doc/res/Switch_Example_ESP8266_D1_mini.png) |
-
-
-### ESP8266-DEVKITC  
-| ESP8266 DEVKITC                                                     |
-|-------------------------------------------------------------------|
-|![ESP8266_DEVKITC](../../../doc/res/Switch_Example_ESP8266_DEVKITC.png) |
-
+5. Перейдите обратно в директорию `st-device-sdk-c-ref` и соберите проект
+   
+   `$python3 build.py esp8266 smart_kettle_example`
+   
+6. Прошейте устройство и запустите монитор с выводом работы
+   
+   `$python3 build.py esp8266 smart_kettle_example flash monitor`
+   
