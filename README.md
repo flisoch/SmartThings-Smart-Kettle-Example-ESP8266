@@ -29,7 +29,7 @@
    
    `$python3 build.py esp8266 smart_kettle_example`
    
-6. Прошейте устройство и запустите монитор с выводом работы
+6. Прошейте устройство и запустите вывод работы в терминал
    
    `$python3 build.py esp8266 smart_kettle_example flash monitor`
    
