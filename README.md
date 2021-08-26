@@ -19,17 +19,17 @@
     ```
 2. Находять в директории `apps/esp8266`, склонируйте этот репозиторий
  
-   `$git clone https://github.com/flisoch/SmartThings-Smart-Kettle-Example-ESP8266.git`
+   `$git clone https://github.com/flisoch/SmartThings-Smart-Kettle-Example-ESP8266.git kettle_example`
 
-3. Добавьте свои файлы `device_info.json` и `onboarding_config.json` в директорию `smart_kettle_example/main`
+3. Добавьте свои файлы `device_info.json` и `onboarding_config.json` в директорию `kettle_example/main`
 
 4. (Опционально). Создайте кастомное Heating Setpoint Capability по [алгоритму](https://github.com/flisoch/SmartThings-Smart-Kettle-Example-ESP8266/blob/master/custom-capability/README.md)
 
 5. Перейдите обратно в директорию `st-device-sdk-c-ref` и соберите проект
    
-   `$python3 build.py esp8266 smart_kettle_example`
+   `$python3 build.py esp8266 kettle_example`
    
 6. Прошейте устройство и запустите вывод работы в терминал
    
-   `$python3 build.py esp8266 smart_kettle_example flash monitor`
+   `$python3 build.py esp8266 kettle_example flash monitor`
    
