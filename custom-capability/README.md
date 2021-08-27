@@ -1,17 +1,26 @@
-# Create and update Custom Capability commands
+# Алгоритм создания и обновления кастомного Capability
 
-1. Download smartthings-cli from https://github.com/SmartThingsCommunity/smartthings-cli/releases
-2. Copy json config files of some default capability
+1. Скачайте smartthings-cli из https://github.com/SmartThingsCommunity/smartthings-cli/releases
 
-    `$./smartthings capabilities thermostatHeatingSetpoint 1 -j -o capabilityCopy.json`
+2. (Опционально) Скопируйте конфигурационный json-файл наиболее близкого Capability, который можно взять за основу. Альтернатива - использовать шаблонные файлы из этого репозитория.
+
+    `$./smartthings capabilities thermostatHeatingSetpoint 1 -j -o heatingCustom.json`
     
-    `$./smartthings capabilities:presentation thermostatHeatingSetpoint 1 -j -o capabilityPresentationCopy.json`
+    `$./smartthings capabilities:presentation thermostatHeatingSetpoint 1 -j -o heatingCustomPresentation.json`
 
-3. Remove capability Id, version status fields, set new name and change other fields you want to customize
-4. Create new custom capability and save new capability config file
+3. В файле heatingCustom.json удалите поля Id, версия, статус, установите новое имя и измените другие поля, которые хочется кастомизировать
 
-    `$./smartthings capabilities:create -j -i capabilityCopy.json -o customCapability.json`
-5. Set capability Id from newly created config to presentationCopy.json. Change other fields you want to customize
-6. Create new custom capability presentation and its config file
+4. Создайте новое кастомное Capability и сохраните результат создания в том же файле heatingCustom.json
+
+    `$./smartthings capabilities:create -j -i heatingCustom.json -o heatingCustom.json`
+
+5. Скопируйте идентификатор/id Capability из полученного файла в файл heatingCustomPresentation.json. Измените другие поля, которые хочется кастомизировать
+
+6. Создайте новое UI представление для кастомного Capability и сохраните результат в customCapabilityPresentation.json
+
     `$./smartthings capabilities:create -j -i capabilityPresentationCopy.json -o customCapabilityPresentation.json`
 
+7. Добавьте файл capability-helper в директорию iot-core/src/include/caps и замените в нем идентификатор/id на полученный для кастомного Capability
+8. Включайте файл-помощник в файлы работы с Capability через директиву #include
+
+    `#include "caps/iot_caps_helper_heatingSetpoint.h"`
